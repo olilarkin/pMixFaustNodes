@@ -1,5 +1,6 @@
-import("math.lib");
+import("stdfaust.lib");
 import("maxmsp.lib");
+
 // IIR hilbert transform Emmanuel Favreau (via Miller Puckette)
 // fastest
 hilbertef(x) = real(x), imag(x)
@@ -26,3 +27,16 @@ with {
         : biquad(_, 0.24787813425064086914, -1.23438167572021484375, 1., -1.23438167572021484375, 0.24787813425064086914)
         : biquad(_, 0.69171458482742309570, -1.67367196083068847656, 1., -1.67367196083068847656, 0.69171458482742309570);
 };
+
+freqshift(x, shift) = negative(x), positive(x)
+with {
+  negative(x) = real(x)*cosv - imag(x)*sinv;
+  positive(x) = real(x)*cosv + imag(x)*sinv;
+  real(x) = hilbert(x) : _ , !;
+  imag(x) = hilbert(x) : ! , _;
+  sinv = os.oscrq(shift) : _ , !;
+  cosv = os.oscrq(shift) : ! , _;
+  hilbert = hilbertsc48;
+};
+
+ssb(shift, x) = freqshift(x, shift) : _ , !; // only take one sideband

@@ -5,11 +5,11 @@ declare copyright "Oliver Larkin";
 declare version "0.1";
 declare licence "GPL";
 
-import("IIRHilbert.dsp");
+import("FrequencyShifter.lib");
 import("stdfaust.lib");
 
 lutsize = 1 << 9;
-sintable = float(ba.time)*(2.0*PI)/float(lutsize) : sin;
+sintable = float(ba.time)*(2.0*ma.PI)/float(lutsize) : sin;
 mix = 0.5;
 maxfeedback = 0.7;
 
@@ -24,7 +24,7 @@ with {
   positive(x) = real(x)*cosv + imag(x)*sinv;
   real(x) = hilbert(x) : _ , !;
   imag(x) = hilbert(x) : ! , _;
-  phasor = fmod(((rate*rateScalar)/float(ma.SR) : (+ : decimal) ~ _)+offset, 1.);
+  phasor = fmod(((rate*rateScalar)/float(ma.SR) : (+ : ma.decimal) ~ _)+offset, 1.);
   sinv = quadlookup(phasor) : _ , !;
   cosv = quadlookup(phasor) : ! , _;
   hilbert = hilbertef;
@@ -33,7 +33,7 @@ with {
   quadlookup(phase)=ss1+d*(ss2-ss1), sc1+d*(sc2-sc1)
 	with {
 		sini = int(phase * lutsize); 
-		d = decimal(phase * lutsize);
+		d = ma.decimal(phase * lutsize);
 		cosi = int(fmod((phase * lutsize)+(lutsize*0.25), lutsize));  
 		ss1 = rdtable(lutsize+1, sintable, sini);
 		ss2 = rdtable(lutsize+1, sintable, sini+1);
