@@ -6,17 +6,17 @@ declare version "0.1";
 declare licence "GPL";
 
 import("IIRHilbert.dsp");
-import("filter.lib");
+import("stdfaust.lib");
 
 lutsize = 1 << 9;
-sintable = float(time)*(2.0*PI)/float(lutsize) : sin;
+sintable = float(ba.time)*(2.0*PI)/float(lutsize) : sin;
 mix = 0.5;
 maxfeedback = 0.7;
 
 rate = hslider("Rate [unit:hz] [OWL:PARAMETER_A]", 0, 0., 1, 0.001);
 rateScalar = hslider("Rate Scalar [OWL:PARAMETER_B]", 1., 1., 40., 0.001);
 offset = hslider("L-R Offset [OWL:PARAMETER_C]", 0., 0., 1., 0.001) * 0.5;
-fbk = hslider("Feedback [OWL:PARAMETER_D]", 0., 0, 1., 0.01) : *(maxfeedback) : smooth(tau2pole(0.005));
+fbk = hslider("Feedback [OWL:PARAMETER_D]", 0., 0, 1., 0.01) : *(maxfeedback) : si.smooth(ba.tau2pole(0.005));
 
 ssbfreqshift(x, offset) = (+ : negative) ~ (*(fbk) : clip(-1, 1))
 with {
@@ -24,7 +24,7 @@ with {
   positive(x) = real(x)*cosv + imag(x)*sinv;
   real(x) = hilbert(x) : _ , !;
   imag(x) = hilbert(x) : ! , _;
-  phasor = fmod(((rate*rateScalar)/float(SR) : (+ : decimal) ~ _)+offset, 1.);
+  phasor = fmod(((rate*rateScalar)/float(ma.SR) : (+ : decimal) ~ _)+offset, 1.);
   sinv = quadlookup(phasor) : _ , !;
   cosv = quadlookup(phasor) : ! , _;
   hilbert = hilbertef;
