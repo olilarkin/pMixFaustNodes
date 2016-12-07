@@ -6,8 +6,7 @@ declare version "0.1";
 declare licence "GPL";
 
 import("stdfaust.lib");
-
-import("FrequencyShifter.dsp");
+import("FrequencyShifter.lib");
 
 shift = hslider("Shift [unit:hz] [OWL:PARAMETER_A]", 0.0, -1., 1, 0.001);
 shift_scalar = hslider("Shift Scalar [OWL:PARAMETER_B]", 1., 1., 100, 0.1);
